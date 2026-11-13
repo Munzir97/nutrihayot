@@ -1,0 +1,28 @@
+---
+import Asos from '../layouts/Asos.astro';
+import { SAYT } from '../data/sayt';
+---
+
+<Asos sarlavha="Loyiha haqida" tavsif="Nutri Hayot loyihasi haqida." tor>
+  <section class="sahifa-bosh">
+    <h1>Loyiha haqida</h1>
+  </section>
+
+  <section class="bolim">
+    <div class="matn">
+      <p>
+        Nutri Hayot — ovqatlanish haqidagi ilmiy asoslangan ma'lumotlarni o'zbek tilida, sodda va
+        tushunarli shaklda yetkazuvchi loyiha.
+      </p>
+      <p>
+        Maqolalarda keltirilgan fikrlar ilmiy manbalarga tayanadi, manbalar ro'yxati har bir maqola
+        oxirida beriladi.
+      </p>
+      <p>{SAYT.ogohlantirish}</p>
+      <p>
+        Bizni <a href={SAYT.telegram}>Telegram</a> va <a href={SAYT.instagram}>Instagram</a>da
+        kuzatishingiz mumkin.
+      </p>
+    </div>
+  </section>
+</Asos>

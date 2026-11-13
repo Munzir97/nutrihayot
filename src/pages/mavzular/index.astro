@@ -1,0 +1,28 @@
+---
+import Asos from '../../layouts/Asos.astro';
+import { MAVZULAR } from '../../data/mavzular';
+import { barchaMaqolalar } from '../../lib/maqolalar';
+
+const maqolalar = await barchaMaqolalar();
+const soni = (slug: string) => maqolalar.filter((m) => m.data.mavzu === slug).length;
+---
+
+<Asos sarlavha="Mavzular" tavsif="Nutri Hayot saytidagi barcha mavzular." tor>
+  <section class="sahifa-bosh">
+    <h1>Mavzular</h1>
+  </section>
+
+  <section class="bolim">
+    <div class="royxat">
+      {
+        MAVZULAR.map((m) => (
+          <a class="maqola-karta" href={`/mavzular/${m.slug}/`}>
+            <span class="nom">{m.nom}</span>
+            <span class="qisqa">{m.tavsif}</span>
+            {soni(m.slug) > 0 && <span class="meta">{soni(m.slug)} ta maqola</span>}
+          </a>
+        ))
+      }
+    </div>
+  </section>
+</Asos>

@@ -1,0 +1,58 @@
+---
+import Asos from '../../layouts/Asos.astro';
+import Strelka from '../../components/Strelka.astro';
+import MaqolaKarta from '../../components/MaqolaKarta.astro';
+import { MAVZULAR, type Mavzu } from '../../data/mavzular';
+import { barchaMaqolalar } from '../../lib/maqolalar';
+
+export function getStaticPaths() {
+  return MAVZULAR.map((mavzu) => ({ params: { slug: mavzu.slug }, props: { mavzu } }));
+}
+
+interface Props {
+  mavzu: Mavzu;
+}
+
+const { mavzu } = Astro.props;
+const maqolalar = (await barchaMaqolalar()).filter((m) => m.data.mavzu === mavzu.slug);
+
+// Ro'yxatdagi keyingi uchta mavzu (oxiriga yetganda boshidan davom etadi).
+const orin = MAVZULAR.findIndex((m) => m.slug === mavzu.slug);
+const boshqalar = [1, 2, 3].map((n) => MAVZULAR[(orin + n) % MAVZULAR.length]);
+---
+
+<Asos sarlavha={mavzu.nom} tavsif={mavzu.tavsif} tor>
+  <section class="sahifa-bosh">
+    <a class="iz" href="/mavzular/">Mavzular</a>
+    <h1>{mavzu.nom}</h1>
+    <p class="izoh">{mavzu.tavsif}</p>
+  </section>
+
+  <section class="bolim">
+    <div class="royxat">
+      <h2 class="yorliq">Maqolalar</h2>
+      {
+        maqolalar.length === 0 ? (
+          <p class="bosh-xabar">Bu mavzudagi maqolalar tez orada qo'shiladi.</p>
+        ) : (
+          maqolalar.map((m) => <MaqolaKarta maqola={m} />)
+        )
+      }
+    </div>
+  </section>
+
+  <section class="bolim">
+    <div class="royxat mavzu-royxat">
+      <h2 class="yorliq">Boshqa mavzular</h2>
+      {
+        boshqalar.map((m) => (
+          <a class="mavzu-havola" href={`/mavzular/${m.slug}/`}>
+            {m.nom}
+            <Strelka />
+          </a>
+        ))
+      }
+      <a class="mavzu-havola oddiy" href="/mavzular/">Barcha mavzular</a>
+    </div>
+  </section>
+</Asos>

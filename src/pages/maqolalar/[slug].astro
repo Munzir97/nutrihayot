@@ -1,0 +1,156 @@
+---
+import { render } from 'astro:content';
+import Asos from '../../layouts/Asos.astro';
+import { SAYT } from '../../data/sayt';
+import { mavzuTop } from '../../data/mavzular';
+import {
+  barchaMaqolalar,
+  maqolaYoli,
+  oqishVaqti,
+  sanaMatn,
+  type Maqola,
+} from '../../lib/maqolalar';
+
+export async function getStaticPaths() {
+  const maqolalar = await barchaMaqolalar();
+  return maqolalar.map((maqola) => ({ params: { slug: maqola.id }, props: { maqola } }));
+}
+
+interface Props {
+  maqola: Maqola;
+}
+
+const { maqola } = Astro.props;
+const { Content, headings } = await render(maqola);
+const { sarlavha, qisqacha, sana, yangilangan, manbalar } = maqola.data;
+const mavzu = mavzuTop(maqola.data.mavzu);
+const bolimlar = headings.filter((h) => h.depth === 2);
+const daqiqa = oqishVaqti(maqola.body);
+
+const oxshash = (await barchaMaqolalar())
+  .filter((m) => m.data.mavzu === maqola.data.mavzu && m.id !== maqola.id)
+  .slice(0, 3);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: sarlavha,
+  description: qisqacha,
+  inLanguage: 'uz',
+  datePublished: sana.toISOString(),
+  dateModified: (yangilangan ?? sana).toISOString(),
+  articleSection: mavzu.nom,
+  mainEntityOfPage: new URL(maqolaYoli(maqola), Astro.site).href,
+  publisher: { '@type': 'Organization', name: SAYT.nom },
+};
+---
+
+<Asos sarlavha={sarlavha} tavsif={qisqacha} turi="article" tor>
+  <Fragment slot="bosh">
+    <meta property="article:published_time" content={sana.toISOString()} />
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
+  </Fragment>
+
+  <article class="maqola">
+    <header class="sahifa-bosh" style="padding-bottom: 0">
+      <a class="iz" href={`/mavzular/${mavzu.slug}/`}>{mavzu.nom}</a>
+      <h1>{sarlavha}</h1>
+      <p class="meta">
+        <time datetime={sana.toISOString().slice(0, 10)}>{sanaMatn(sana)}</time> · {daqiqa} daqiqada
+        o'qiladi
+        {yangilangan && <> · yangilangan: {sanaMatn(yangilangan)}</>}
+      </p>
+    </header>
+
+    <div class="qisqacha">
+      <h2 class="yorliq">Qisqacha</h2>
+      <p>{qisqacha}</p>
+    </div>
+
+    {
+      bolimlar.length >= 2 && (
+        <nav class="mundarija" aria-label="Mundarija">
+          <h2 class="yorliq">Mundarija</h2>
+          <ol>
+            {bolimlar.map((b) => (
+              <li>
+                <a href={`#${b.slug}`}>{b.text}</a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+      )
+    }
+
+    <div class="matn" data-maqola-matni>
+      <Content />
+    </div>
+
+    {
+      manbalar.length > 0 && (
+        <section class="royxat manbalar" id="manbalar">
+          <h2 class="yorliq">Manbalar</h2>
+          <ol>
+            {manbalar.map((m, i) => (
+              <li id={`manba-${i + 1}`}>
+                <span>
+                  {m.matn}
+                  {m.havola && (
+                    <>
+                      {' '}
+                      <a href={m.havola} rel="noopener">
+                        Havola
+                      </a>
+                    </>
+                  )}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )
+    }
+
+    {
+      oxshash.length > 0 && (
+        <section class="royxat oxshash">
+          <h2 class="yorliq">Shu mavzuda</h2>
+          {oxshash.map((m) => (
+            <a href={maqolaYoli(m)}>{m.data.sarlavha}</a>
+          ))}
+        </section>
+      )
+    }
+  </article>
+</Asos>
+
+<script>
+  // Matndagi [1], [2] kabi raqamlarni pastdagi manbalar ro'yxatiga havolaga aylantiradi.
+  const matn = document.querySelector('[data-maqola-matni]');
+  if (matn) {
+    const yuruvchi = document.createTreeWalker(matn, NodeFilter.SHOW_TEXT);
+    const tugunlar: Text[] = [];
+    while (yuruvchi.nextNode()) {
+      const t = yuruvchi.currentNode as Text;
+      if (/\[\d+\]/.test(t.data) && !t.parentElement?.closest('a, code, pre')) tugunlar.push(t);
+    }
+    for (const t of tugunlar) {
+      const qismlar = t.data.split(/(\[\d+\])/);
+      const parcha = document.createDocumentFragment();
+      for (const q of qismlar) {
+        const mos = q.match(/^\[(\d+)\]$/);
+        if (mos && document.getElementById(`manba-${mos[1]}`)) {
+          const a = document.createElement('a');
+          a.href = `#manba-${mos[1]}`;
+          a.className = 'manba-raqam';
+          a.textContent = q;
+          a.setAttribute('aria-label', `${mos[1]}-manba`);
+          parcha.append(a);
+        } else {
+          parcha.append(q);
+        }
+      }
+      t.replaceWith(parcha);
+    }
+  }
+</script>

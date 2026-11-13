@@ -1,0 +1,25 @@
+---
+import Asos from '../../layouts/Asos.astro';
+import MaqolaKarta from '../../components/MaqolaKarta.astro';
+import { barchaMaqolalar } from '../../lib/maqolalar';
+
+const maqolalar = await barchaMaqolalar();
+---
+
+<Asos sarlavha="Maqolalar" tavsif="Nutri Hayot saytidagi barcha maqolalar." tor>
+  <section class="sahifa-bosh">
+    <h1>Maqolalar</h1>
+  </section>
+
+  <section class="bolim">
+    <div class="royxat">
+      {
+        maqolalar.length === 0 ? (
+          <p class="bosh-xabar">Maqolalar tez orada qo'shiladi.</p>
+        ) : (
+          maqolalar.map((m) => <MaqolaKarta maqola={m} mavzuKorsat />)
+        )
+      }
+    </div>
+  </section>
+</Asos>

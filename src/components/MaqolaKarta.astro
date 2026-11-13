@@ -1,0 +1,17 @@
+---
+import { maqolaYoli, type Maqola } from '../lib/maqolalar';
+import { mavzuTop } from '../data/mavzular';
+
+interface Props {
+  maqola: Maqola;
+  mavzuKorsat?: boolean;
+}
+
+const { maqola, mavzuKorsat = false } = Astro.props;
+---
+
+<a class="maqola-karta" href={maqolaYoli(maqola)}>
+  {mavzuKorsat && <span class="meta">{mavzuTop(maqola.data.mavzu).nom}</span>}
+  <span class="nom">{maqola.data.sarlavha}</span>
+  <span class="qisqa">{maqola.data.qisqacha}</span>
+</a>

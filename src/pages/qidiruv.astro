@@ -1,0 +1,124 @@
+---
+import Asos from '../layouts/Asos.astro';
+import QidiruvShakli from '../components/QidiruvShakli.astro';
+---
+
+<Asos sarlavha="Qidiruv" tavsif="Nutri Hayot saytidan qidirish." tor indekslanmasin>
+  <section class="sahifa-bosh">
+    <h1>Qidiruv</h1>
+  </section>
+
+  <section class="bolim">
+    <QidiruvShakli avtofokus />
+    <p class="bosh-xabar" id="qidiruv-holati" role="status" style="border-bottom: 0; padding-bottom: 8px">
+      Qidirish uchun so'z yozing.
+    </p>
+    <div class="royxat" id="qidiruv-natijalari" hidden></div>
+    <noscript>
+      <p class="bosh-xabar">Qidiruv ishlashi uchun brauzerda JavaScript yoqilgan bo'lishi kerak.</p>
+    </noscript>
+  </section>
+</Asos>
+
+<script>
+  interface Yozuv {
+    manzil: string;
+    sarlavha: string;
+    qisqacha: string;
+    mavzu: string;
+    bolimlar: string;
+  }
+
+  const maydon = document.getElementById('qidiruv-maydoni') as HTMLInputElement | null;
+  const holat = document.getElementById('qidiruv-holati');
+  const natijalar = document.getElementById('qidiruv-natijalari');
+  const shakl = maydon?.form;
+
+  // Katta-kichik harf va turli apostroflar (o', oʻ, o‘) farqini yo'qotadi.
+  const tekisla = (s: string) =>
+    s
+      .toLowerCase()
+      .replace(/[ʻʼ‘’`´]/g, "'")
+      .replace(/\s+/g, ' ')
+      .trim();
+
+  let royxat: (Yozuv & { izlash: string; nomIzlash: string })[] | null = null;
+
+  async function yukla() {
+    if (royxat) return royxat;
+    const javob = await fetch('/qidiruv.json');
+    const xom: Yozuv[] = await javob.json();
+    royxat = xom.map((y) => ({
+      ...y,
+      nomIzlash: tekisla(y.sarlavha),
+      izlash: tekisla([y.sarlavha, y.qisqacha, y.mavzu, y.bolimlar].join(' ')),
+    }));
+    return royxat;
+  }
+
+  function qator(y: Yozuv) {
+    const a = document.createElement('a');
+    a.className = 'maqola-karta';
+    a.href = y.manzil;
+    for (const [sinf, matn] of [
+      ['meta', y.mavzu],
+      ['nom', y.sarlavha],
+      ['qisqa', y.qisqacha],
+    ]) {
+      const s = document.createElement('span');
+      s.className = sinf;
+      s.textContent = matn;
+      a.append(s);
+    }
+    return a;
+  }
+
+  async function qidir() {
+    if (!maydon || !holat || !natijalar) return;
+    const sorov = tekisla(maydon.value);
+    const manzil = new URL(location.href);
+    if (sorov) manzil.searchParams.set('q', maydon.value.trim());
+    else manzil.searchParams.delete('q');
+    history.replaceState(null, '', manzil);
+
+    if (!sorov) {
+      natijalar.hidden = true;
+      holat.textContent = "Qidirish uchun so'z yozing.";
+      return;
+    }
+
+    let hammasi;
+    try {
+      hammasi = await yukla();
+    } catch {
+      holat.textContent = "Qidiruv ma'lumotlarini yuklab bo'lmadi. Sahifani yangilab ko'ring.";
+      return;
+    }
+
+    const sozlar = sorov.split(' ');
+    const topilgan = hammasi
+      .filter((y) => sozlar.every((s) => y.izlash.includes(s)))
+      .sort(
+        (a, b) =>
+          Number(sozlar.every((s) => b.nomIzlash.includes(s))) -
+          Number(sozlar.every((s) => a.nomIzlash.includes(s))),
+      );
+
+    natijalar.replaceChildren(...topilgan.map(qator));
+    natijalar.hidden = topilgan.length === 0;
+    holat.textContent =
+      topilgan.length === 0
+        ? `"${maydon.value.trim()}" bo'yicha hech narsa topilmadi.`
+        : `${topilgan.length} ta natija topildi.`;
+  }
+
+  if (maydon) {
+    maydon.value = new URLSearchParams(location.search).get('q') ?? '';
+    maydon.addEventListener('input', qidir);
+    shakl?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      qidir();
+    });
+    qidir();
+  }
+</script>

@@ -1,0 +1,57 @@
+---
+import Asos from '../layouts/Asos.astro';
+import Strelka from '../components/Strelka.astro';
+import QidiruvShakli from '../components/QidiruvShakli.astro';
+import { SAYT } from '../data/sayt';
+import { MAVZULAR, mavzuTop } from '../data/mavzular';
+import { barchaMaqolalar, maqolaYoli } from '../lib/maqolalar';
+
+const songgi = (await barchaMaqolalar()).slice(0, 6);
+const raqam = (i: number) => String(i + 1).padStart(2, '0');
+---
+
+<Asos>
+  <section class="bosh">
+    <p class="yorliq">Ilmiy asoslangan ma'lumotlar</p>
+    <h1>Ovqatlanish ilmi&nbsp;— <em>o'zbek tilida.</em></h1>
+    <p class="izoh">{SAYT.tavsif}</p>
+    <QidiruvShakli />
+  </section>
+
+  <section class="bolim" id="mavzular">
+    <div class="bolim-bosh">
+      <h2 class="yorliq">Mavzular</h2>
+      <a href="/mavzular/">Barcha mavzular</a>
+    </div>
+    <div class="mavzu-tor">
+      {
+        MAVZULAR.map((m) => (
+          <a class="mavzu-havola" href={`/mavzular/${m.slug}/`}>
+            {m.nom}
+            <Strelka />
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="bolim" id="maqolalar">
+    <div class="bolim-bosh">
+      <h2 class="yorliq">So'nggi maqolalar</h2>
+      <a href="/maqolalar/">Barcha maqolalar</a>
+    </div>
+    {
+      songgi.length === 0 ? (
+        <p class="bosh-xabar">Maqolalar tez orada qo'shiladi.</p>
+      ) : (
+        songgi.map((m, i) => (
+          <a class="maqola-qator" href={maqolaYoli(m)}>
+            <span class="raqam">{raqam(i)}</span>
+            <span class="nom">{m.data.sarlavha}</span>
+            <span class="mavzu">{mavzuTop(m.data.mavzu).nom}</span>
+          </a>
+        ))
+      )
+    }
+  </section>
+</Asos>

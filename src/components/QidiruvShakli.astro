@@ -1,0 +1,21 @@
+---
+interface Props {
+  avtofokus?: boolean;
+}
+const { avtofokus = false } = Astro.props;
+---
+
+<form class="qidiruv" action="/qidiruv/" method="get" role="search">
+  <label class="yorliq" for="qidiruv-maydoni">Saytdan qidirish</label>
+  <div class="qator">
+    <input
+      id="qidiruv-maydoni"
+      type="search"
+      name="q"
+      placeholder="Masalan: D vitamini"
+      autocomplete="off"
+      autofocus={avtofokus}
+    />
+    <button class="tugma" type="submit">Qidirish</button>
+  </div>
+</form>

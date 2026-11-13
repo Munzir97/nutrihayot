@@ -1,0 +1,39 @@
+---
+import { getCollection, render } from 'astro:content';
+import Asos from '../layouts/Asos.astro';
+
+const atamalar = (await getCollection('lugat')).sort((a, b) =>
+  a.data.atama.localeCompare(b.data.atama, 'uz'),
+);
+const tayyor = await Promise.all(
+  atamalar.map(async (a) => ({ a, Content: (await render(a)).Content })),
+);
+---
+
+<Asos sarlavha="Lug'at" tavsif="Ovqatlanish ilmiga oid atamalar izohi." tor>
+  <section class="sahifa-bosh">
+    <h1>Lug'at</h1>
+    <p class="izoh">Ovqatlanish ilmiga oid atamalar izohi.</p>
+  </section>
+
+  <section class="bolim">
+    {
+      tayyor.length === 0 ? (
+        <div class="royxat">
+          <p class="bosh-xabar">Lug'at to'ldirilmoqda.</p>
+        </div>
+      ) : (
+        <dl class="lugat royxat">
+          {tayyor.map(({ a, Content }) => (
+            <div class="atama" id={a.id}>
+              <dt>{a.data.atama}</dt>
+              <dd>
+                <Content />
+              </dd>
+            </div>
+          ))}
+        </dl>
+      )
+    }
+  </section>
+</Asos>

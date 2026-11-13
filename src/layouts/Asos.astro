@@ -1,0 +1,112 @@
+---
+import '@fontsource-variable/newsreader/opsz.css';
+import '@fontsource-variable/newsreader/opsz-italic.css';
+import '@fontsource-variable/inter/index.css';
+import '../styles/asos.css';
+import Strelka from '../components/Strelka.astro';
+import { SAYT } from '../data/sayt';
+
+interface Props {
+  sarlavha?: string;
+  tavsif?: string;
+  tor?: boolean;
+  turi?: 'website' | 'article';
+  indekslanmasin?: boolean;
+}
+
+const {
+  sarlavha,
+  tavsif = SAYT.tavsif,
+  tor = false,
+  turi = 'website',
+  indekslanmasin = false,
+} = Astro.props;
+
+const toliqSarlavha = sarlavha ? `${sarlavha} — ${SAYT.nom}` : `${SAYT.nom} — ${SAYT.shior}`;
+const yol = Astro.url.pathname;
+const kanonik = new URL(yol, Astro.site).href;
+const rasm = new URL('/og.jpg', Astro.site).href;
+
+const menyu = [
+  { nom: 'Mavzular', manzil: '/mavzular/', kengEkran: false },
+  { nom: 'Maqolalar', manzil: '/maqolalar/', kengEkran: false },
+  { nom: "Lug'at", manzil: '/lugat/', kengEkran: true },
+  { nom: 'Loyiha haqida', manzil: '/haqida/', kengEkran: true },
+  { nom: 'Qidiruv', manzil: '/qidiruv/', kengEkran: false },
+];
+---
+
+<!doctype html>
+<html lang="uz">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{toliqSarlavha}</title>
+    <meta name="description" content={tavsif} />
+    <link rel="canonical" href={kanonik} />
+    {indekslanmasin && <meta name="robots" content="noindex" />}
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#fbfcfa" />
+    <meta property="og:site_name" content={SAYT.nom} />
+    <meta property="og:locale" content="uz_UZ" />
+    <meta property="og:type" content={turi} />
+    <meta property="og:title" content={sarlavha ?? `${SAYT.nom} — ${SAYT.shior}`} />
+    <meta property="og:description" content={tavsif} />
+    <meta property="og:url" content={kanonik} />
+    <meta property="og:image" content={rasm} />
+    <meta name="twitter:card" content="summary" />
+    <slot name="bosh" />
+  </head>
+  <body>
+    <a class="otish" href="#asosiy">Asosiy matnga o'tish</a>
+
+    <div class:list={['quti', { tor }]}>
+      <header class="tepa">
+        <a class="belgi" href="/">
+          <img src="/logo.png" alt="" width="190" height="160" />
+          {SAYT.nom}
+        </a>
+        <nav class="menyu" aria-label="Asosiy menyu">
+          {
+            menyu.map((m) => (
+              <a
+                href={m.manzil}
+                class:list={[{ 'keng-ekran': m.kengEkran }]}
+                aria-current={yol.startsWith(m.manzil) ? 'page' : undefined}
+              >
+                {m.nom}
+              </a>
+            ))
+          }
+        </nav>
+      </header>
+    </div>
+
+    <main id="asosiy">
+      <div class:list={['quti', { tor }]}>
+        <slot />
+      </div>
+    </main>
+
+    <div class:list={['quti', { tor }]}>
+      <footer class="past">
+        <div class="ustki">
+          <p class="chaqiriq">{SAYT.chaqiriq}</p>
+          <a class="tugma kichik" href={SAYT.telegram}>
+            Telegram kanaliga o'tish
+            <Strelka />
+          </a>
+        </div>
+        <nav class="havolalar" aria-label="Qo'shimcha havolalar">
+          <a href="/mavzular/">Mavzular</a>
+          <a href="/maqolalar/">Maqolalar</a>
+          <a href="/lugat/">Lug'at</a>
+          <a href="/haqida/">Loyiha haqida</a>
+          <a href={SAYT.instagram}>Instagram</a>
+        </nav>
+        <p class="ogoh">{SAYT.ogohlantirish}</p>
+      </footer>
+    </div>
+  </body>
+</html>
