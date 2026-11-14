@@ -132,20 +132,25 @@ const jsonLd = {
     const tugunlar: Text[] = [];
     while (yuruvchi.nextNode()) {
       const t = yuruvchi.currentNode as Text;
-      if (/\[\d+\]/.test(t.data) && !t.parentElement?.closest('a, code, pre')) tugunlar.push(t);
+      if (/\[\d+(?:,\s*\d+)*\]/.test(t.data) && !t.parentElement?.closest('a, code, pre')) tugunlar.push(t);
     }
     for (const t of tugunlar) {
-      const qismlar = t.data.split(/(\[\d+\])/);
+      // [1] yoki [1, 2] ko'rinishidagi ishoralar
+      const qismlar = t.data.split(/(\[\d+(?:,\s*\d+)*\])/);
       const parcha = document.createDocumentFragment();
       for (const q of qismlar) {
-        const mos = q.match(/^\[(\d+)\]$/);
-        if (mos && document.getElementById(`manba-${mos[1]}`)) {
-          const a = document.createElement('a');
-          a.href = `#manba-${mos[1]}`;
-          a.className = 'manba-raqam';
-          a.textContent = q;
-          a.setAttribute('aria-label', `${mos[1]}-manba`);
-          parcha.append(a);
+        const mos = q.match(/^\[(\d+(?:,\s*\d+)*)\]$/);
+        const raqamlar = mos ? mos[1].split(/,\s*/) : [];
+        if (mos && raqamlar.every((r) => document.getElementById(`manba-${r}`))) {
+          raqamlar.forEach((r, i) => {
+            const a = document.createElement('a');
+            a.href = `#manba-${r}`;
+            a.className = 'manba-raqam';
+            a.textContent = raqamlar.length === 1 ? `[${r}]` : `${i === 0 ? '[' : ''}${r}${i === raqamlar.length - 1 ? ']' : ''}`;
+            a.setAttribute('aria-label', `${r}-manba`);
+            if (i > 0) parcha.append(', ');
+            parcha.append(a);
+          });
         } else {
           parcha.append(q);
         }
