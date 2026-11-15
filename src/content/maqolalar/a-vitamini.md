@@ -10,7 +10,7 @@ manbalar:
     havola: "https://doi.org/10.2903/j.efsa.2015.4028"
   - matn: "Imdad A, Mayo-Wilson E, Haykal MR va boshq. Vitamin A supplementation for preventing morbidity and mortality in children from six months to five years of age. Cochrane Database Syst Rev. 2022;3:CD008524."
     havola: "https://doi.org/10.1002/14651858.CD008524.pub4"
-  - matn: "O'zbekiston Respublikasi Sog'liqni saqlash vazirligi, UNICEF, GroundWork. Uzbekistan Nutrition Survey 2017. Toshkent; 2019."
+  - matn: "Ministry of Health of the Republic of Uzbekistan, UNICEF. Uzbekistan Nutrition Survey Report (UNS 2017). Tashkent: UNICEF; 2019."
     havola: "https://groundworkhealth.org/wp-content/uploads/2019/11/Uzbekistan_Nutrition_Survey_en_web.pdf"
 ---
 
