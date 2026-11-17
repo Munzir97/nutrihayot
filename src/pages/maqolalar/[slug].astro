@@ -3,6 +3,7 @@ import { render } from 'astro:content';
 import Asos from '../../layouts/Asos.astro';
 import { SAYT } from '../../data/sayt';
 import { mavzuTop } from '../../data/mavzular';
+import { BOGLIQ } from '../../data/bogliq';
 import {
   barchaMaqolalar,
   maqolaYoli,
@@ -27,27 +28,67 @@ const mavzu = mavzuTop(maqola.data.mavzu);
 const bolimlar = headings.filter((h) => h.depth === 2);
 const daqiqa = oqishVaqti(maqola.body);
 
-const oxshash = (await barchaMaqolalar())
-  .filter((m) => m.data.mavzu === maqola.data.mavzu && m.id !== maqola.id)
-  .slice(0, 3);
+const hammasi = await barchaMaqolalar();
+// Avval qo'lda belgilangan bog'liq maqolalar, keyin shu mavzudagi boshqalari.
+const qolda = (BOGLIQ[maqola.id] ?? [])
+  .map((id) => hammasi.find((m) => m.id === id))
+  .filter((m): m is Maqola => Boolean(m));
+const shuMavzu = hammasi.filter(
+  (m) => m.data.mavzu === maqola.data.mavzu && m.id !== maqola.id && !qolda.includes(m),
+);
+const oxshash = [...qolda, ...shuMavzu].slice(0, 5);
 
+const manzil = new URL(maqolaYoli(maqola), Astro.site).href;
+const sayt = new URL('/', Astro.site).href;
+const tashkilot = {
+  '@type': 'Organization',
+  '@id': `${sayt}#tashkilot`,
+  name: SAYT.nom,
+  url: sayt,
+  logo: { '@type': 'ImageObject', url: new URL('/logo.png', Astro.site).href },
+  sameAs: [SAYT.telegram, SAYT.instagram],
+};
 const jsonLd = {
   '@context': 'https://schema.org',
-  '@type': 'Article',
-  headline: sarlavha,
-  description: qisqacha,
-  inLanguage: 'uz',
-  datePublished: sana.toISOString(),
-  dateModified: (yangilangan ?? sana).toISOString(),
-  articleSection: mavzu.nom,
-  mainEntityOfPage: new URL(maqolaYoli(maqola), Astro.site).href,
-  publisher: { '@type': 'Organization', name: SAYT.nom },
+  '@graph': [
+    {
+      '@type': 'Article',
+      headline: sarlavha,
+      description: qisqacha,
+      inLanguage: 'uz',
+      url: manzil,
+      mainEntityOfPage: manzil,
+      image: new URL('/og.jpg', Astro.site).href,
+      datePublished: sana.toISOString(),
+      dateModified: (yangilangan ?? sana).toISOString(),
+      articleSection: mavzu.nom,
+      isAccessibleForFree: true,
+      author: tashkilot,
+      publisher: tashkilot,
+      citation: manbalar.map((m) => m.matn),
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: SAYT.nom, item: sayt },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: mavzu.nom,
+          item: new URL(`/mavzular/${mavzu.slug}/`, Astro.site).href,
+        },
+        { '@type': 'ListItem', position: 3, name: sarlavha, item: manzil },
+      ],
+    },
+  ],
 };
 ---
 
 <Asos sarlavha={sarlavha} tavsif={qisqacha} turi="article" tor>
   <Fragment slot="bosh">
     <meta property="article:published_time" content={sana.toISOString()} />
+    <meta property="article:modified_time" content={(yangilangan ?? sana).toISOString()} />
+    <meta property="article:section" content={mavzu.nom} />
     <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
   </Fragment>
 
@@ -114,7 +155,7 @@ const jsonLd = {
     {
       oxshash.length > 0 && (
         <section class="royxat oxshash">
-          <h2 class="yorliq">Shu mavzuda</h2>
+          <h2 class="yorliq">Bog'liq maqolalar</h2>
           {oxshash.map((m) => (
             <a href={maqolaYoli(m)}>{m.data.sarlavha}</a>
           ))}

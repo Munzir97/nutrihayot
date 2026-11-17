@@ -8,9 +8,38 @@ import { barchaMaqolalar, maqolaYoli } from '../lib/maqolalar';
 
 const songgi = (await barchaMaqolalar()).slice(0, 6);
 const raqam = (i: number) => String(i + 1).padStart(2, '0');
+const sayt = new URL('/', Astro.site).href;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': `${sayt}#sayt`,
+      name: SAYT.nom,
+      url: sayt,
+      description: SAYT.tavsif,
+      inLanguage: 'uz',
+      publisher: { '@id': `${sayt}#tashkilot` },
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: `${sayt}qidiruv/?q={search_term_string}`,
+        'query-input': 'required name=search_term_string',
+      },
+    },
+    {
+      '@type': 'Organization',
+      '@id': `${sayt}#tashkilot`,
+      name: SAYT.nom,
+      url: sayt,
+      logo: new URL('/logo.png', Astro.site).href,
+      sameAs: [SAYT.telegram, SAYT.instagram],
+    },
+  ],
+};
 ---
 
 <Asos>
+  <script slot="bosh" type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
   <section class="bosh">
     <p class="yorliq">Ilmiy asoslangan ma'lumotlar</p>
     <h1>Ovqatlanish ilmi&nbsp;— <em>o'zbek tilida.</em></h1>

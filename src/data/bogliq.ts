@@ -1,0 +1,32 @@
+// Mavzusi boshqa bo'lsa ham bir-biriga bog'liq maqolalar.
+// Maqola sahifasidagi "Bog'liq maqolalar" blokida avval shular, keyin shu mavzudagi boshqa maqolalar chiqadi.
+// Kalit va qiymatlar: maqola fayl nomi (slug). Yangi maqola qo'shilganda shu yerga ham yozib qo'ying.
+export const BOGLIQ: Record<string, string[]> = {
+  'a-vitamini': ['e-vitamini', 'd-vitamini', 'k-vitamini', 'yoglar'],
+  'b1-vitamini': ['b2-vitamini', 'b3-vitamini', 'b6-vitamini', 'uglevodlar'],
+  'b2-vitamini': ['b1-vitamini', 'b3-vitamini', 'b6-vitamini', 'kalsiy'],
+  'b3-vitamini': ['b1-vitamini', 'b2-vitamini', 'b6-vitamini', 'oqsil'],
+  'b6-vitamini': ['b12-vitamini', 'foliy-kislotasi', 'oqsil', 'b2-vitamini'],
+  'b12-vitamini': ['foliy-kislotasi', 'temir-va-kamqonlik', 'oqsil', 'b6-vitamini'],
+  'c-vitamini': ['temir-va-kamqonlik', 'rux', 'e-vitamini', 'muvozanatli-tarelka'],
+  'd-vitamini': ['kalsiy', 'k-vitamini', 'magniy', 'omega-3'],
+  'e-vitamini': ['yoglar', 'selen', 'c-vitamini', 'a-vitamini'],
+  'foliy-kislotasi': ['b12-vitamini', 'temir-va-kamqonlik', 'yod', 'b6-vitamini'],
+  'k-vitamini': ['d-vitamini', 'kalsiy', 'a-vitamini', 'muvozanatli-tarelka'],
+  kaliy: ['tuz-va-natriy', 'magniy', 'muvozanatli-tarelka', 'kletchatka'],
+  kalsiy: ['d-vitamini', 'k-vitamini', 'magniy', 'oqsil'],
+  kletchatka: ['uglevodlar', 'qoshilgan-shakar', 'muvozanatli-tarelka', 'suv'],
+  magniy: ['kalsiy', 'kaliy', 'd-vitamini', 'kletchatka'],
+  'muvozanatli-tarelka': ['oqsil', 'uglevodlar', 'yoglar', 'kletchatka'],
+  'omega-3': ['yoglar', 'd-vitamini', 'e-vitamini', 'muvozanatli-tarelka'],
+  oqsil: ['muvozanatli-tarelka', 'uglevodlar', 'yoglar', 'b12-vitamini'],
+  'qoshilgan-shakar': ['uglevodlar', 'kletchatka', 'suv', 'muvozanatli-tarelka'],
+  rux: ['temir-va-kamqonlik', 'c-vitamini', 'selen', 'oqsil'],
+  selen: ['yod', 'rux', 'e-vitamini', 'omega-3'],
+  suv: ['qoshilgan-shakar', 'tuz-va-natriy', 'kaliy', 'muvozanatli-tarelka'],
+  'temir-va-kamqonlik': ['c-vitamini', 'b12-vitamini', 'foliy-kislotasi', 'oqsil'],
+  'tuz-va-natriy': ['kaliy', 'yod', 'muvozanatli-tarelka', 'suv'],
+  uglevodlar: ['kletchatka', 'qoshilgan-shakar', 'oqsil', 'yoglar'],
+  yod: ['tuz-va-natriy', 'selen', 'foliy-kislotasi', 'temir-va-kamqonlik'],
+  yoglar: ['omega-3', 'e-vitamini', 'uglevodlar', 'oqsil'],
+};
