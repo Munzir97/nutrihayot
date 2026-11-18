@@ -29,4 +29,5 @@ export const BOGLIQ: Record<string, string[]> = {
   uglevodlar: ['kletchatka', 'qoshilgan-shakar', 'oqsil', 'yoglar'],
   yod: ['tuz-va-natriy', 'selen', 'foliy-kislotasi', 'temir-va-kamqonlik'],
   yoglar: ['omega-3', 'e-vitamini', 'uglevodlar', 'oqsil'],
+  testosteron: ['yoglar', 'd-vitamini', 'rux', 'oqsil'],
 };
